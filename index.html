@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>SeconArk CyberTek Access Manager Login</title>
+	<link rel="icon" type="image/x-icon" href="/assets/images/remoteapp.ico">
+    <style>
+	.rdp {
+  background-color: #FFFFFF;
+  color: black;
+  padding: 6px 20px;
+  text-decoration: none;
+}
+        * {
+            box-sizing: border-box;
+        }
+    	div {
+            padding: 10px;
+            background-color: #f6f6f6;
+            overflow: hidden;
+        }
+    	input[type=text], textarea, select {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+        }
+		input[type=password] {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+        }
+        input[type=button]{ 
+            width: auto;
+            float: right;
+            cursor: pointer;
+            padding: 7px;
+        }
+    </style>
+<script>
+function exec(cmdline, params) {
+  var fso = new ActiveXObject("Scripting.FileSystemObject");
+  fileExist = fso.FileExists(cmdline);
+  if (!fileExist) {
+    alert("The requested application is not installed.");
+  }
+  else {
+    var shell = new ActiveXObject( "WScript.Shell" );
+    if (params) {
+        params = ' ' + params;
+    }
+    else {
+        params = '';
+    }
+    shell.Run('"' + cmdline + '"' + params);
+  }
+}
+</script>
+</head>
+<body>
+    <div>
+	<center>
+         <!--   <img src="assets/images/logo2.png" alt="logo" class="logo"> -->
+			<img src="assets/images/logo.png" alt="login image" width="250" height="250" >
+        <!--Add few elements to the form-->
+
+        <div>
+			<input type="text" id="txtName" placeholder="Enter your AD Username" required />
+        </div>
+		<div>
+			<input type="password" id="txtPass" placeholder="Enter your AD Password" required />
+        </div>
+        <div>
+            <select id="selDomain" required>
+				<option value="dom0" selected disabled>Select your AD Domain</option>
+                <option value="srv19.local">SRV19.LOCAL</option>
+				<option value="dom1">CLIENT-DOM1</option>
+				<option value="dom2">CLIENT-DOM2</option>
+				<option value="dom3">CLIENT-DOM3</option>
+            </select>
+        </div>
+		<div>
+			<input type="text" id="currentDateTime" style="display:none;" />
+        </div>
+        <!--Add to button to save the data.-->  
+		<div>
+			<a href="acdra://su1 pass@12323 127.0.0.1" id="bt" type="button"><button class="rdp">Launch RDP</button></a>
+			<!-- <a href="javascript:exec('C:\\Windows\\Web\\acdra.exe', 'su1 pass@12323 192.168.31.26');" id="bt" type="button"><button class="rdp">Launch RDP</button></a> -->
+            <!-- <a href="javascript:exec('C:\\Windows\\Web\\acdra.exe', 'su2 pass@12323 192.168.31.26');">Launch RDP</a> -->
+			<input type="button" id="bt" value="Download File" onclick="saveFile()" />
+        </div>
+    </div>
+</body>
+<script>
+var today = new Date();
+var date = today.getDate()+''+(today.getMonth()+1)+''+today.getFullYear();
+var time = today.getHours() + "" + today.getMinutes() + "" + today.getSeconds();
+var dateTime = date+'_'+time;
+document.getElementById("currentDateTime").value = dateTime;
+</script>
+<script>
+    let saveFile = () => {
+    	
+        // Get the data from each element on the form.
+    	const ad_id = document.getElementById('txtName');
+        const ad_pass = document.getElementById('txtPass');
+        const domain = document.getElementById('selDomain');
+		const datetime = document.getElementById('currentDateTime');
+        //const rdp = document.getElementById('rdp');
+        
+        // This variable stores all the data.
+        let data = 
+            'username:s:rdpuser' +'\n' + 
+            'password 51:b:01000000D08C9DDF0115D1118C7A00C04FC297EB010000007348D78DC439F04E9F05CBC9BD66B2FA000000000800000070007300770000001066000000010000200000004AF52987E9E52237C32A546969484730D8B28183412E273BA74093A9562F2B34000000000E8000000002000020000000BF934F53628EC91F10DDFD0455A41B454CD300C88B802F8C39FF37EE6E3D2C99200000006BFDEEE212266C6A0A415014EA3BDDB82F24CF01D1FA45B76719C9988C6FE01640000000BDCF80DFA914EA0C662AC604A4E54DBB616BF34F78B1E340361018A5456200A55B81E1B28344537C7DB86ED7B32163F5A45B3A548A07613671BD6682967FB96F' + '\n' + 
+            'domain:s:' + domain.value + '\n' + 
+			'desktopwidth:i:1440 ' + '\n' + 'desktopheight:i:900' + '\n' + 'full address:s:192.168.31.15' + '\n' + 'authentication level:i:2' + '\n' + 'prompt for credentials:i:0' + '\n' + 'negotiate security layer:i:1' + '\n' + 'remoteapplicationmode:i:0' + '\n' + 'promptcredentialonce:i:0' + '\n' + 
+			'alternate shell:s:C:\\Windows\\Web\\V1\\Dashboard\\View\\rdpHelper.bat '+ ad_id.value + " "+ ad_pass.value +" "+ datetime.value;
+        
+        // Convert the text to BLOB.
+        const textToBLOB = new Blob([data], { type: 'text/plain' });
+        const sFileName = 'srv19.rdp';	   // The file to save the data.
+
+        let newLink = document.createElement("a");
+        newLink.download = sFileName;
+
+        if (window.webkitURL != null) {
+            newLink.href = window.webkitURL.createObjectURL(textToBLOB);
+        }
+        else {
+            newLink.href = window.URL.createObjectURL(textToBLOB);
+            newLink.style.display = "none";
+            document.body.appendChild(newLink);
+        }
+
+        newLink.click(); 
+    }
+</script>
+</html>
